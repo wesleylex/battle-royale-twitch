@@ -3,9 +3,11 @@ import axios from "axios";
 export default async function handler(req, res) {
   const { code } = req.query;
 
-  // 1. Redirecionamento inicial para a Twitch
   if (!code) {
-    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.TWITCH_REDIRECT)}&response_type=code&scope=chat:read%20chat:edit`;
+    // É fundamental usar encodeURIComponent na redirect_uri para evitar erros de URL
+    const redirectUri = encodeURIComponent(process.env.TWITCH_REDIRECT);
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=chat:read%20chat:edit`;
+
     return res.redirect(authUrl);
   }
 
