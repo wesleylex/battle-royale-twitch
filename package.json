@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "mkdir -p .next"
+    "dev": "vercel dev"
   },
   "dependencies": {
-    "axios": "^1.6.7"
+    "axios": "^1.6.2",
+    "tmi.js": "^1.9.5"
   }
 }
