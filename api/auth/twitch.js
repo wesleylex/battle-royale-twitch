@@ -3,37 +3,34 @@ import axios from "axios";
 export default async function handler(req, res) {
   const { code } = req.query;
 
+  // 1. Redirecionamento inicial para a Twitch
   if (!code) {
-    const authUrl =
-      "https://id.twitch.tv/oauth2/authorize" +
-      `?client_id=${process.env.TWITCH_CLIENT_ID}` +
-      `&redirect_uri=${process.env.TWITCH_REDIRECT}` +
-      "&response_type=code" +
-      "&scope=chat:read chat:edit";
-
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.TWITCH_REDIRECT)}&response_type=code&scope=chat:read%20chat:edit`;
     return res.redirect(authUrl);
   }
 
-  const tokenRes = await axios.post(
-    "https://id.twitch.tv/oauth2/token",
-    null,
-    {
-      params: {
-        client_id: process.env.TWITCH_CLIENT_ID,
-        client_secret: process.env.TWITCH_CLIENT_SECRET,
-        code,
-        grant_type: "authorization_code",
-        redirect_uri: process.env.TWITCH_REDIRECT
-      }
-    }
-  );
+  try {
+    // 2. Troca do código pelo Token (usando URLSearchParams para evitar erros de formato)
+    const params = new URLSearchParams();
+    params.append('client_id', process.env.TWITCH_CLIENT_ID);
+    params.append('client_secret', process.env.TWITCH_CLIENT_SECRET);
+    params.append('code', code);
+    params.append('grant_type', 'authorization_code');
+    params.append('redirect_uri', process.env.TWITCH_REDIRECT);
 
-  const { access_token } = tokenRes.data;
+    const tokenRes = await axios.post("https://id.twitch.tv/oauth2/token", params);
 
-  res.setHeader(
-    "Set-Cookie",
-    `twitch_token=${access_token}; Path=/; HttpOnly; Secure; SameSite=Lax`
-  );
+    const { access_token } = tokenRes.data;
 
-  res.redirect("/");
+    // 3. Salva o cookie e redireciona para a home
+    res.setHeader(
+      "Set-Cookie",
+      `twitch_token=${access_token}; Path=/; HttpOnly; Secure; SameSite=Lax`
+    );
+
+    return res.redirect("/");
+  } catch (error) {
+    console.error("Erro na autenticação:", error.response?.data || error.message);
+    return res.status(500).json({ error: "Falha ao obter token da Twitch" });
+  }
 }
