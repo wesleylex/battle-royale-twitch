@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const redirectUri = encodeURIComponent(process.env.TWITCH_REDIRECT);
     const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=chat:read%20chat:edit`;
 
-    return res.redirect(/public/game.html);
+    return res.redirect(/game.html);
   }
 
   try {
