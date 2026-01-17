@@ -3,7 +3,8 @@ import { connectTwitch } from "../../lib/twitchClient.js";
 export default async function handler(req, res) {
   const cookie = req.headers.cookie || "";
   const token = cookie
-    .split("; ")
+    .split(";")
+    .map(c => c.trim())
     .find(c => c.startsWith("twitch_token="))
     ?.split("=")[1];
 
