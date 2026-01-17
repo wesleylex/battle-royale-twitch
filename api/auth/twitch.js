@@ -2,10 +2,13 @@ import axios from "axios";
 
 export default async function handler(req, res) {
   const { code } = req.query;
+  const redirectBase =
+    process.env.TWITCH_REDIRECT ||
+    `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}/api/auth/twitch`;
 
   if (!code) {
     // É fundamental usar encodeURIComponent na redirect_uri para evitar erros de URL
-    const redirectUri = encodeURIComponent(process.env.TWITCH_REDIRECT);
+    const redirectUri = encodeURIComponent(redirectBase);
     const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=chat:read%20chat:edit`;
 
     return res.redirect(authUrl);
@@ -18,7 +21,7 @@ export default async function handler(req, res) {
     params.append('client_secret', process.env.TWITCH_CLIENT_SECRET);
     params.append('code', code);
     params.append('grant_type', 'authorization_code');
-    params.append('redirect_uri', process.env.TWITCH_REDIRECT);
+    params.append('redirect_uri', redirectBase);
 
     const tokenRes = await axios.post("https://id.twitch.tv/oauth2/token", params);
 
