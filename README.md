@@ -10,6 +10,8 @@ TWITCH_CLIENT_SECRET=seu_client_secret
 TWITCH_REDIRECT=http://localhost:3000/api/auth/twitch
 ```
 
+Se `TWITCH_REDIRECT` não estiver definido, a API tenta montar a URL com base nos headers da requisição.
+
 ## Como rodar
 
 ```bash
